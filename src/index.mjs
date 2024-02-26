@@ -2,6 +2,9 @@ import express, { request, response } from "express";
 
 const app = express();
 
+// Registering the JSON middleware for POST requests
+app.use(express.json());
+
 const PORT = process.env.PORT || 3000;
 
 const mockUsers = [
@@ -55,8 +58,15 @@ app.get("/api/users/:id", (request, response) => {
   return response.send(findUser);
 });
 
-app.get("/api/products", (request, response) => {
-  response.send([{ id: 123, name: "chicken breast", price: 12.99 }]);
+// Post Requests
+app.post("/api/users", (request, response) => {
+  console.log(request.body);
+
+  const { body } = request;
+  const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...body };
+  mockUsers.push(newUser);
+
+  return response.status(201).send(newUser);
 });
 
 app.listen(PORT, () => {
