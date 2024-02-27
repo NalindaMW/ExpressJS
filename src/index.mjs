@@ -89,6 +89,26 @@ app.put("/api/users/:id", (request, response) => {
   return response.sendStatus(200);
 });
 
+// PATCH Requests
+// Updating only a portion of the user record
+app.patch("/api/users/:id", (request, response) => {
+  const {
+    body,
+    params: { id },
+  } = request;
+
+  const parsedId = parseInt(id);
+
+  if (isNaN(parsedId)) return response.sendStatus(400);
+
+  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
+
+  if (findUserIndex === -1) return response.sendStatus(404);
+
+  mockUsers[findUserIndex] = { ...mockUsers[findUserIndex], ...body };
+  return response.sendStatus(200);
+});
+
 app.listen(PORT, () => {
   console.log(`App running on Port ${PORT}`);
 });
