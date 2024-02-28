@@ -5,6 +5,17 @@ const app = express();
 // Registering the JSON middleware for POST requests
 app.use(express.json());
 
+// Middleware function is also a request handler which have access to (request, response, next)
+// Can use globally or only for specific endpoints
+// Can have multiple middlewares for same endpoint
+const loggingMiddleware = (request, response, next) => {
+  console.log(`${request.method} - ${request.url}`);
+  next();
+};
+
+// Using the loggingMiddleware globally
+app.use(loggingMiddleware);
+
 const PORT = process.env.PORT || 3000;
 
 const mockUsers = [
@@ -17,9 +28,25 @@ const mockUsers = [
   { id: 7, username: "marlan", displayName: "Marlan" },
 ];
 
-app.get("/", (request, response) => {
-  response.status(201).send({ msg: "Hello!" });
-});
+// app.get("/", (request, response) => {
+//   response.status(201).send({ msg: "Hello!" });
+// });
+
+// Root endpoint with multiple middlewares
+app.get(
+  "/",
+  (request, response, next) => {
+    console.log("Base URL 1");
+    next();
+  },
+  (request, response, next) => {
+    console.log("Base URL 2");
+    next();
+  },
+  (request, response) => {
+    response.status(201).send({ msg: "Hello!" });
+  }
+);
 
 //get route without route or query params
 /*
