@@ -13,6 +13,21 @@ const loggingMiddleware = (request, response, next) => {
   next();
 };
 
+const resolveIndexByUserId = (request, response, next) => {
+  const {
+    params: { id },
+  } = request;
+
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return response.sendStatus(400);
+  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
+  if (findUserIndex === -1) return response.sendStatus(404);
+
+  // Passing findUserIndex back to the function by assining to the new request property
+  request.findUserIndex = findUserIndex;
+  next();
+};
+
 // Using the loggingMiddleware globally
 app.use(loggingMiddleware);
 
@@ -98,6 +113,8 @@ app.post("/api/users", (request, response) => {
 
 // PUT Requests
 // Updating the entire record
+// Without a middleware function
+/*
 app.put("/api/users/:id", (request, response) => {
   const {
     body,
@@ -113,6 +130,15 @@ app.put("/api/users/:id", (request, response) => {
   if (findUserIndex === -1) return response.sendStatus(404);
 
   mockUsers[findUserIndex] = { id: parsedId, ...body };
+  return response.sendStatus(200);
+});
+*/
+
+// With the use of resolveIndexByUserId middleware function
+app.put("/api/users/:id", resolveIndexByUserId, (request, response) => {
+  const { body, findUserIndex } = request;
+
+  mockUsers[findUserIndex] = { id: mockUsers[findUserIndex].id, ...body };
   return response.sendStatus(200);
 });
 
